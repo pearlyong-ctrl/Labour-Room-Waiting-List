@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSJ O&G Labour Room Waiting List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        /* Custom slick scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        /* Smooth transitions for form elements */
+        input, select, textarea {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .glass-header {
+            background: linear-gradient(135deg, #0f766e 0%, #059669 100%);
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden text-slate-800">
+
+    <!-- Header -->
+    <header class="glass-header text-white shadow-lg z-10 flex-shrink-0 border-b border-teal-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
+                    <i data-lucide="baby" class="w-7 h-7 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight leading-tight">Labour Room Waiting List</h1>
+                    <p class="text-sm text-teal-100 font-medium tracking-wide">Hospital Seberang Jaya - O&G Department</p>
+                </div>
+            </div>
+            <div class="text-right hidden sm:block bg-black/10 px-4 py-2 rounded-xl backdrop-blur-sm">
+                <div class="text-lg font-bold tracking-wider" id="live-clock">--:--:--</div>
+                <div class="text-xs text-teal-100 font-medium" id="live-date">-- -- ----</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-hidden flex flex-col md:flex-row max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 gap-6">
+        
+        <!-- Left Column: Booking Form -->
+        <section class="w-full md:w-[35%] flex flex-col bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden flex-shrink-0">
+            <div class="bg-slate-50 px-6 py-5 border-b border-slate-100 flex items-center gap-3">
+                <div class="bg-teal-100 p-2 rounded-lg text-teal-600">
+                    <i data-lucide="clipboard-pen" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">New Patient Booking</h2>
+                    <p class="text-xs text-slate-500 font-medium">Add to pending admission list</p>
+                </div>
+            </div>
+            
+            <div class="p-6 overflow-y-auto flex-1">
+                <form id="booking-form" class="space-y-5">
+                    <!-- Ward & Name -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Ward Booked From *</label>
+                            <select id="ward" required class="w-full rounded-xl border-slate-200 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm border p-3 bg-slate-50/50">
+                                <option value="" disabled selected>Select Origin Ward</option>
+                                <option value="Ward 9A">Ward 9A</option>
+                                <option value="Ward 10A">Ward 10A</option>
+                                <option value="Ward 4A">Ward 4A</option>
+                                <option value="PAC">PAC</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Patient Name *</label>
+                            <input type="text" id="patientName" required class="w-full rounded-xl border-slate-200 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm border p-3 bg-slate-50/50" placeholder="Enter Full Name">
+                        </div>
+                    </div>
+
+                    <!-- Age, G, P, + -->
+                    <div class="grid grid-cols-4 gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                        <div class="col-span-1">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase text-center mb-1">Age *</label>
+                            <input type="number" id="age" required min="12" max="65" class="w-full rounded-lg border-slate-200 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm border p-2 text-center" placeholder="Yrs">
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase text-center mb-1">Gravida *</label>
+                            <input type="number" id="gravida" required min="1" class="w-full rounded-lg border-slate-200 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm border p-2 text-center" placeholder="G">
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase text-center mb-1">Parity *</label>
+                            <input type="number" id="parity" required min="0" class="w-full rounded-lg border-slate-200 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm border p-2 text-center" placeholder="P">
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase text-center mb-1" title="Miscarriage/Abortion/Molar">Plus (+) *</label>
+                            <input type="number" id="abortion" required min="0" value="0" class="w-full rounded-lg border-slate-200 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm border p-2 text-center" placeholder="+">
+                        </div>
+                    </div>
+
+                    <!-- Gestation & Os -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Gestation (POA) *</label>
+                            <input type="text" id="gestation" required class="w-full rounded-xl border-slate-200 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm border p-3 bg-slate-50/50" placeholder="e.g., 38w 2d">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Cervical Os (cm) *</label>
+                            <input type="number" id="cervicalOs" required min="0" max="10" step="0.5" class="w-full rounded-xl border-slate-200 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm border p-3 bg-slate-50/50" placeholder="0 - 10">
+                        </div>
+                    </div>
+
+                    <!-- Labour Type -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Labour Type *</label>
+                        <select id="labourType" required class="w-full rounded-xl border-slate-200 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm border p-3 bg-slate-50/50">
+                            <option value="" disabled selected>Select Spontaneous or Induced</option>
+                            <option value="Spontaneous">Spontaneous</option>
+                            <option value="Induced">Induced</option>
+                        </select>
+                    </div>
+
+                    <!-- Membrane & Liquor (Dynamic) -->
+                    <div class="bg-amber-50/50 p-4 rounded-2xl border border-amber-100 space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Membrane Status *</label>
+                            <select id="membrane" required class="w-full rounded-xl border-slate-200 shadow-sm focus:border-amber-500 focus:ring-amber-500 text-sm border p-3 bg-white">
+                                <option value="" disabled selected>Select Intact or Absent</option>
+                                <option value="Intact">Intact</option>
+                                <option value="Absent (Ruptured)">Absent (Ruptured)</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Hidden by default, shown via JS -->
+                        <div id="liquor-container" class="hidden transition-all duration-300">
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 text-amber-700">Liquor Colour *</label>
+                            <select id="liquor" class="w-full rounded-xl border-amber-200 shadow-sm focus:border-amber-500 focus:ring-amber-500 text-sm border p-3 bg-white">
+                                <option value="" disabled selected>Select clear or meconium</option>
+                                <option value="Clear">Clear</option>
+                                <option value="Meconium">Meconium</option>
+                                <option value="Blood Stained">Blood Stained</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Diagnosis -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Diagnosis & Risk Factors *</label>
+                        <textarea id="diagnosis" required rows="3" class="w-full rounded-xl border-slate-200 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm border p-3 bg-slate-50/50 resize-none" placeholder="e.g., GDM on diet, PIH, Previous LSCS x 1..."></textarea>
+                    </div>
+
+                    <div class="pt-2">
+                        <button type="submit" class="w-full bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-teal-500/30 transition-all duration-200 flex justify-center items-center gap-2 transform hover:-translate-y-0.5">
+                            <i data-lucide="send" class="w-5 h-5"></i>
+                            Send Booking to System
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Right Column: Lists -->
+        <section class="w-full md:w-[65%] flex flex-col gap-6 overflow-hidden">
+            
+            <!-- Pending List -->
+            <div class="flex-1 flex flex-col bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4 flex justify-between items-center text-white">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-white/20 p-1.5 rounded-lg backdrop-blur-sm">
+                            <i data-lucide="clock" class="w-5 h-5"></i>
+                        </div>
+                        <h2 class="text-lg font-bold tracking-wide">Pending Admission</h2>
+                    </div>
+                    <div class="bg-white text-orange-600 text-sm font-bold px-3 py-1 rounded-full shadow-sm flex items-center gap-1.5">
+                        <span id="pending-count">0</span> Patients
+                    </div>
+                </div>
+                <div id="pending-list" class="p-5 overflow-y-auto flex-1 space-y-4 bg-slate-50/50">
+                    <!-- Pending Cards will be injected here -->
+                    <div class="flex flex-col items-center justify-center h-full text-slate-400 opacity-70">
+                        <i data-lucide="inbox" class="w-12 h-12 mb-3"></i>
+                        <p class="text-sm font-medium">No pending patients in the waiting list.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accepted List -->
+            <div class="flex-1 flex flex-col bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-teal-600 to-emerald-500 px-6 py-4 flex justify-between items-center text-white">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-white/20 p-1.5 rounded-lg backdrop-blur-sm">
+                            <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                        </div>
+                        <h2 class="text-lg font-bold tracking-wide">Accepted into Labour Room</h2>
+                    </div>
+                    <div class="bg-white text-teal-700 text-sm font-bold px-3 py-1 rounded-full shadow-sm flex items-center gap-1.5">
+                        <span id="accepted-count">0</span> Patients
+                    </div>
+                </div>
+                <div id="accepted-list" class="p-5 overflow-y-auto flex-1 space-y-4 bg-slate-50/50">
+                    <!-- Accepted Cards will be injected here -->
+                    <div class="flex flex-col items-center justify-center h-full text-slate-400 opacity-70">
+                        <i data-lucide="bed-double" class="w-12 h-12 mb-3"></i>
+                        <p class="text-sm font-medium">No accepted patients yet.</p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- UI Message Modal/Toast Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3"></div>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Data Store
+        let patients = [];
+
+        // DOM Elements
+        const form = document.getElementById('booking-form');
+        const membraneSelect = document.getElementById('membrane');
+        const liquorContainer = document.getElementById('liquor-container');
+        const liquorSelect = document.getElementById('liquor');
+        
+        const pendingListEl = document.getElementById('pending-list');
+        const acceptedListEl = document.getElementById('accepted-list');
+        const pendingCountEl = document.getElementById('pending-count');
+        const acceptedCountEl = document.getElementById('accepted-count');
+
+        // Toggle Liquor dropdown based on Membrane status
+        membraneSelect.addEventListener('change', function(e) {
+            if (e.target.value === 'Absent (Ruptured)') {
+                liquorContainer.classList.remove('hidden');
+                liquorSelect.required = true;
+            } else {
+                liquorContainer.classList.add('hidden');
+                liquorSelect.required = false;
+                liquorSelect.value = ''; // Reset
+            }
+        });
+
+        // Clock functionality
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('live-clock').innerText = now.toLocaleTimeString('en-US', { hour12: true });
+            document.getElementById('live-date').innerText = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Helper: Format Dates for display
+        function formatDateTime(dateString) {
+            if (!dateString) return '--';
+            const date = new Date(dateString);
+            return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        }
+
+        // Helper: Show UI Toast
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgClass = type === 'success' ? 'bg-emerald-600' : 'bg-rose-500';
+            
+            toast.className = `${bgClass} text-white px-5 py-4 rounded-xl shadow-2xl transform transition-all duration-300 translate-x-20 opacity-0 flex items-center gap-3 min-w-[300px] border border-white/10`;
+            toast.innerHTML = `
+                <div class="bg-white/20 rounded-full p-1">
+                    <i data-lucide="${type === 'success' ? 'check' : 'trash-2'}" class="w-5 h-5"></i>
+                </div>
+                <span class="text-sm font-bold tracking-wide">${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.classList.remove('translate-x-20', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-x-20', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // Helper: Show Ward Alert Notification
+        function showWardAlert(ward, patientName) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            toast.className = `bg-blue-600 text-white px-5 py-4 rounded-xl shadow-2xl transform transition-all duration-300 translate-x-20 opacity-0 flex items-center gap-3 min-w-[300px] border border-blue-400`;
+            toast.innerHTML = `
+                <div class="bg-white/20 rounded-full p-2 animate-bounce">
+                    <i data-lucide="bell-ring" class="w-5 h-5"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-[10px] font-bold text-blue-200 uppercase tracking-wider">Automated Ward Alert</span>
+                    <span class="text-sm font-bold tracking-wide">${ward} has been notified to transfer ${patientName}</span>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.classList.remove('translate-x-20', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-x-20', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 6000); // Stays visible slightly longer than a standard toast
+        }
+
+        // Helper: Play Notification Bell Sound
+        function playNotificationSound() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const audioCtx = new AudioContext();
+                
+                // Helper for individual chime
+                function playChime(freq, delay) {
+                    const oscillator = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+                    
+                    oscillator.type = 'sine'; // Smooth bell-like tone
+                    oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime + delay);
+                    
+                    // Volume envelope (fade out slowly)
+                    gainNode.gain.setValueAtTime(0, audioCtx.currentTime + delay);
+                    gainNode.gain.linearRampToValueAtTime(0.6, audioCtx.currentTime + delay + 0.05);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + delay + 1.5);
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+                    
+                    oscillator.start(audioCtx.currentTime + delay);
+                    oscillator.stop(audioCtx.currentTime + delay + 1.5);
+                }
+
+                // Play a two-tone hospital paging chime
+                playChime(659.25, 0);    // E5 note
+                playChime(523.25, 0.4);  // C5 note (delayed by 0.4s)
+                
+            } catch (error) {
+                console.log("Audio playback failed or blocked by browser:", error);
+            }
+        }
+
+        // Helper: Play New Booking Sound (Ascending Chime)
+        function playNewBookingSound() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const audioCtx = new AudioContext();
+                
+                function playChime(freq, delay) {
+                    const oscillator = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+                    
+                    oscillator.type = 'sine'; 
+                    oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime + delay);
+                    
+                    // Volume envelope
+                    gainNode.gain.setValueAtTime(0, audioCtx.currentTime + delay);
+                    gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + delay + 0.05);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + delay + 1.0);
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+                    
+                    oscillator.start(audioCtx.currentTime + delay);
+                    oscillator.stop(audioCtx.currentTime + delay + 1.0);
+                }
+
+                // Ascending three-tone chime for new incoming patient
+                playChime(523.25, 0);    // C5
+                playChime(659.25, 0.15); // E5
+                playChime(783.99, 0.3);  // G5
+                
+            } catch (error) {
+                console.log("Audio playback failed or blocked by browser:", error);
+            }
+        }
+
+        // Handle Form Submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const newPatient = {
+                id: Date.now().toString(),
+                ward: document.getElementById('ward').value,
+                name: document.getElementById('patientName').value.toUpperCase(),
+                age: document.getElementById('age').value,
+                gravida: document.getElementById('gravida').value,
+                parity: document.getElementById('parity').value,
+                abortion: document.getElementById('abortion').value, // The + value
+                gestation: document.getElementById('gestation').value,
+                cervicalOs: document.getElementById('cervicalOs').value,
+                membrane: document.getElementById('membrane').value,
+                liquor: document.getElementById('liquor').value,
+                labourType: document.getElementById('labourType').value,
+                diagnosis: document.getElementById('diagnosis').value,
+                bookingTime: new Date().toISOString(), // Live booking time
+                acceptedTime: null,
+                status: 'pending' 
+            };
+
+            patients.unshift(newPatient);
+            form.reset();
+            
+            // Hide liquor container on reset
+            liquorContainer.classList.add('hidden');
+            liquorSelect.required = false;
+
+            renderLists();
+            showToast('Patient sent to system successfully.', 'success');
+            
+            // Alert Labour Room with a distinctive sound
+            playNewBookingSound();
+
+            // Add visual pulse alert to Labour Room Pending List
+            const pendingPanel = document.getElementById('pending-list').parentElement;
+            pendingPanel.classList.add('ring-4', 'ring-orange-400', 'ring-offset-2', 'scale-[1.01]', 'transition-all', 'duration-300');
+            setTimeout(() => {
+                pendingPanel.classList.remove('ring-4', 'ring-orange-400', 'ring-offset-2', 'scale-[1.01]');
+            }, 800);
+        });
+
+        // Accept Patient into LR
+        window.acceptPatient = function(id) {
+            const patientIndex = patients.findIndex(p => p.id === id);
+            if (patientIndex > -1) {
+                const patient = patients[patientIndex];
+                patient.status = 'accepted';
+                patient.acceptedTime = new Date().toISOString(); 
+                renderLists();
+                
+                showToast(`${patient.name} accepted to LR.`, 'success');
+                
+                // Simulate sending alert to the ward & play sound
+                setTimeout(() => {
+                    showWardAlert(patient.ward, patient.name);
+                    playNotificationSound();
+                }, 800);
+            }
+        };
+
+        // Remove/Discharge Patient
+        window.removePatient = function(id) {
+            patients = patients.filter(p => p.id !== id);
+            renderLists();
+            showToast('Patient record removed.', 'error');
+        };
+
+        // Render the UI Lists
+        function renderLists() {
+            const pending = patients.filter(p => p.status === 'pending');
+            const accepted = patients.filter(p => p.status === 'accepted');
+
+            pendingCountEl.innerText = pending.length;
+            acceptedCountEl.innerText = accepted.length;
+
+            renderCards(pendingListEl, pending, 'pending');
+            renderCards(acceptedListEl, accepted, 'accepted');
+        }
+
+        // Generate HTML for Cards
+        function renderCards(container, data, type) {
+            if (data.length === 0) {
+                const icon = type === 'pending' ? 'inbox' : 'bed-double';
+                const msg = type === 'pending' ? 'No pending patients in the waiting list.' : 'No accepted patients yet.';
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full text-slate-400 opacity-70 py-8">
+                        <i data-lucide="${icon}" class="w-12 h-12 mb-3"></i>
+                        <p class="text-sm font-medium">${msg}</p>
+                    </div>`;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = data.map(patient => {
+                const isPending = type === 'pending';
+                const borderColor = isPending ? 'border-amber-200' : 'border-teal-200';
+                const wardBgColor = isPending ? 'bg-amber-100 text-amber-800' : 'bg-teal-100 text-teal-800';
+                
+                // Format Liquor string if membrane is absent
+                const liquorDisplay = patient.membrane === 'Absent (Ruptured)' && patient.liquor 
+                    ? `<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-[10px] font-bold ml-1">${patient.liquor}</span>` 
+                    : '';
+
+                return `
+                <div class="bg-white border ${borderColor} rounded-2xl p-5 shadow-sm relative transition-all duration-200 hover:shadow-md transform hover:-translate-y-0.5">
+                    
+                    <!-- Top Row: Ward & Status -->
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="${wardBgColor} text-xs font-black px-3 py-1.5 rounded-lg uppercase tracking-wider flex items-center gap-1.5">
+                            <i data-lucide="map-pin" class="w-3 h-3"></i>
+                            ${patient.ward}
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Live Booking Time</p>
+                            <p class="text-sm font-bold text-slate-700">${formatDateTime(patient.bookingTime)}</p>
+                        </div>
+                    </div>
+
+                    <!-- Patient Core Info -->
+                    <div class="mb-4">
+                        <h3 class="font-bold text-slate-800 text-xl mb-2">${patient.name}</h3>
+                        <div class="flex flex-wrap gap-2 text-xs">
+                            <span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md font-semibold border border-slate-200">
+                                Age: ${patient.age}
+                            </span>
+                            <span class="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-md font-bold border border-indigo-100">
+                                G${patient.gravida} P${patient.parity}+${patient.abortion}
+                            </span>
+                            <span class="bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md font-bold border border-blue-100">
+                                POA: ${patient.gestation}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Clinical Details Grid -->
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 my-4 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Cervical Os</span>
+                            <strong class="text-slate-800 text-sm">${patient.cervicalOs} cm</strong>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Membrane</span>
+                            <strong class="text-slate-800 text-sm flex items-center">${patient.membrane} ${liquorDisplay}</strong>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Labour Type</span>
+                            <strong class="text-slate-800 text-sm">${patient.labourType}</strong>
+                        </div>
+                        <div class="col-span-2 md:col-span-3 pt-2 border-t border-slate-200 mt-1">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">Diagnosis / Risk Factors</span>
+                            <strong class="text-rose-600 text-sm">${patient.diagnosis}</strong>
+                        </div>
+                    </div>
+
+                    <!-- Action Footer -->
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-3 border-t border-slate-100">
+                        <div class="w-full sm:w-auto">
+                            ${!isPending ? `
+                            <div class="bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs px-3 py-2 rounded-lg flex items-center gap-2 font-bold w-full sm:w-auto justify-center">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                                Accepted at ${formatDateTime(patient.acceptedTime)}
+                            </div>
+                            ` : '<div></div>'}
+                        </div>
+                        
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            ${isPending ? `
+                                <button onclick="acceptPatient('${patient.id}')" class="flex-1 sm:flex-none bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold py-2 px-4 rounded-xl shadow-md shadow-emerald-500/20 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-1.5">
+                                    <i data-lucide="arrow-right-circle" class="w-4 h-4"></i> Accept to LR
+                                </button>
+                                <button onclick="removePatient('${patient.id}')" class="flex-none bg-white hover:bg-rose-50 text-rose-500 border border-slate-200 hover:border-rose-200 text-xs font-bold py-2 px-3 rounded-xl shadow-sm transition-all flex items-center justify-center">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            ` : `
+                                <button onclick="removePatient('${patient.id}')" class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold py-2 px-4 rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5">
+                                    <i data-lucide="log-out" class="w-4 h-4"></i> Discharge Patient
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+
+            // Re-initialize icons for new DOM elements
+            lucide.createIcons();
+        }
+
+        // Initial Render
+        renderLists();
+
+    </script>
+</body>
+</html>
